@@ -87,7 +87,7 @@ void VDP_Wrong(unsigned char reg, unsigned short val) {
 	if (fp == NULL) {
 		fp = fopen("log.txt", "w");
 		if (fp == NULL ){
-			perror("VDP_Wrong: failed to open log file.\n");
+			perror("VDP_Wrong: failed to open log file.");
 			perror(strerror(errno));
 			exit(errno);
 		}
