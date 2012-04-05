@@ -80,8 +80,7 @@ static void	pmgr_window_add_plugin_to_list(mdp_t *plugin, int err, const string&
 // Callbacks.
 static gboolean	pmgr_window_callback_close(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static void	pmgr_window_callback_response(GtkDialog *dialog, gint response_id, gpointer user_data);
-static void	pmgr_window_callback_tabPluginList_switch_page(GtkNotebook *notebook, GtkNotebookPage *page,
-							       guint page_num, gpointer user_data);
+static void	pmgr_window_callback_tabPluginList_switch_page(GtkNotebook *notebook, guint page_num, gpointer user_data);
 static void	pmgr_window_callback_lstPluginList_cursor_changed(GtkTreeView *tree_view, gpointer user_data);
 static void	pmgr_window_callback_fraPluginDesc_size_allocate(GtkWidget *widget, GtkAllocation *allocation, gpointer user_data);
 
@@ -119,7 +118,7 @@ void pmgr_window_show()
 	gtk_window_set_position(GTK_WINDOW(pmgr_window), GTK_WIN_POS_CENTER);
 	gtk_window_set_resizable(GTK_WINDOW(pmgr_window), FALSE);
 	gtk_window_set_type_hint(GTK_WINDOW(pmgr_window), GDK_WINDOW_TYPE_HINT_DIALOG);
-	gtk_dialog_set_has_separator(GTK_DIALOG(pmgr_window), FALSE);
+	g_object_set(GTK_DIALOG(pmgr_window), "has-separator", FALSE, NULL);
 	
 	// Callbacks for if the window is closed.
 	g_signal_connect((gpointer)pmgr_window, "delete_event",
@@ -559,11 +558,9 @@ static void pmgr_window_callback_response(GtkDialog *dialog, gint response_id, g
  * @param page_num New notebook page index.
  * @param user_data User data.
  */
-static void pmgr_window_callback_tabPluginList_switch_page(GtkNotebook *notebook, GtkNotebookPage *page,
-							   guint page_num, gpointer user_data)
+static void pmgr_window_callback_tabPluginList_switch_page(GtkNotebook *notebook, guint page_num, gpointer user_data)
 {
 	GSFT_UNUSED_PARAMETER(notebook);
-	GSFT_UNUSED_PARAMETER(page);
 	GSFT_UNUSED_PARAMETER(user_data);
 	
 	// Activate the "cursor-changed" callback for the page.

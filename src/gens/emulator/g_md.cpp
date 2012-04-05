@@ -429,6 +429,44 @@ do {								\
 } while (0)
 
 
+#include "gens/prof/gmon.h"
+#include "gens/prof/profil.h"
+
+typedef unsigned long long u64;
+
+void doprofile() {
+	static u64 last_odometer, odometer;
+ 	extern int s_scale;
+
+ 	if (prof_hz == 0) {
+		prof_hz = CPU_Mode ? CPL_M68K *  312 : CPL_M68K *  262;
+	}
+	
+	odometer += (u64)main68k_context.odometer;
+	u64 thres = (u64)prof_hz;
+	
+	if (odometer - last_odometer > thres) {
+		unsigned short *hist = (unsigned short*)_gmonparam.kcount;
+		unsigned int index = (main68k_context.pc-_gmonparam.lowpc)*s_scale/SCALE_1_TO_1;
+		hist[index]++;
+		last_odometer += prof_hz;
+	}
+	
+	if (odometer - last_odometer > thres) {
+		printf("prof_hz is too small; delta=%llu, profrate=%llu\n", odometer - last_odometer, thres);
+		odometer = 0;
+		last_odometer = 0;
+	}
+}
+
+static inline void main68k_exec_wrap(int c) __attribute__((always_inline));
+static inline void main68k_exec_wrap(int c) {
+	if (_gmonparam.state == GMON_PROF_ON) {
+		doprofile();
+	}
+	main68k_exec(c);
+}
+
 /**
  * T_gens_do_MD_frame(): Do an MD frame.
  * @param VDP If true, VDP is updated.
@@ -466,6 +504,9 @@ static inline int T_gens_do_MD_frame(void)
 	     VDP_Current_Line < VDP_Num_Vis_Lines;
 	     VDP_Current_Line++)
 	{
+		// FIXME: last ometer		
+
+
 		buf[0] = Seg_L + Sound_Extrapol[VDP_Current_Line][0];
 		buf[1] = Seg_R + Sound_Extrapol[VDP_Current_Line][0];
 		YM2612_DacAndTimers_Update(buf, Sound_Extrapol[VDP_Current_Line][1]);
@@ -479,7 +520,7 @@ static inline int T_gens_do_MD_frame(void)
 			main68k_addCycles(Update_DMA());
 		
 		VDP_Status |= 0x0004;	// HBlank = 1
-		main68k_exec (Cycles_M68K - 404);
+		main68k_exec_wrap (Cycles_M68K - 404);
 		VDP_Status &= 0xFFFB;	// HBlank = 0
 		
 		if (--HInt_Counter < 0)
@@ -495,7 +536,7 @@ static inline int T_gens_do_MD_frame(void)
 			Render_Line();
 		}
 		
-		main68k_exec(Cycles_M68K);
+		main68k_exec_wrap(Cycles_M68K);
 		Z80_EXEC(0);
 	}
 	
@@ -519,7 +560,7 @@ static inline int T_gens_do_MD_frame(void)
 	
 	CONGRATULATIONS_PRECHECK;
 	VDP_Status |= 0x000C;		// VBlank = 1 et HBlank = 1 (retour de balayage vertical en cours)
-	main68k_exec(Cycles_M68K - 360);
+	main68k_exec_wrap(Cycles_M68K - 360);
 	Z80_EXEC(168);
 	CONGRATULATIONS_POSTCHECK;
 	
@@ -530,7 +571,7 @@ static inline int T_gens_do_MD_frame(void)
 	VDP_Update_IRQ_Line();
 	mdZ80_interrupt(&M_Z80, 0xFF);
 	
-	main68k_exec(Cycles_M68K);
+	main68k_exec_wrap(Cycles_M68K);
 	Z80_EXEC(0);
 	
 	for (VDP_Current_Line++;
@@ -550,10 +591,10 @@ static inline int T_gens_do_MD_frame(void)
 			main68k_addCycles(Update_DMA());
 		
 		VDP_Status |= 0x0004;	// HBlank = 1
-		main68k_exec(Cycles_M68K - 404);
+		main68k_exec_wrap(Cycles_M68K - 404);
 		VDP_Status &= 0xFFFB;	// HBlank = 0
 		
-		main68k_exec(Cycles_M68K);
+		main68k_exec_wrap(Cycles_M68K);
 		Z80_EXEC(0);
 	}
 	

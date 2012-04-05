@@ -838,6 +838,7 @@ unsigned int ROM::loadROM(const string& filename,
 	// Clear the ROM buffer and load the ROM.
 	memset(Rom_Data, 0x00, sizeof(Rom_Data));
 	size_t loaded_size = cmp->get_file(fROM, filename.c_str(), sel_file, Rom_Data, sel_file->filesize);
+
 	if (loaded_size != sel_file->filesize)
 	{
 		// Incorrect filesize.

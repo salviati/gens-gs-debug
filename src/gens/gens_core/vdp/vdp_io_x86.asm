@@ -222,6 +222,7 @@ section .text align=64
 	
 	; Functions found in vdp_io.c
 	extern SYM(VDP_Update_IRQ_Line)
+	extern SYM(VDP_Wrong)
 
 ; ******************************************
 
@@ -1533,5 +1534,11 @@ section .text align=64
 	align 16
 	
 	.Wrong:
+		push eax
+		push ebx
+		call SYM(VDP_Wrong)
+		pop ebx
+		pop eax
+
 		pop	ebx
 		ret

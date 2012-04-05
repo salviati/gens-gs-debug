@@ -160,7 +160,8 @@ gens_SOURCES = \
 		plugins/reg/reg_get_all.c \
 		plugins/reg/reg_set_all.c \
 		plugins/eventmgr.cpp \
-		plugins/mdp_incompat.cpp
+		plugins/mdp_incompat.cpp \
+		gens_core/vdp/vdp_extra.c prof/gmon.c prof/mcount.c
 
 if !GENS_DEBUG
 gens_SOURCES += \
