@@ -1,0 +1,5 @@
+== Profiling Sega Genesis Code ==
+- Compile your code with -pg and include gens.s in your project. Keep the elf file.
+- Remember to start profiling monitor at some point; ex: ```monstartup(0, 0x400000)```
+- When you exit the emulator or call ```moncleanup()``` in your code, "gmon.out" will be written.
+- Use the m68k-elf cross gprof to get listings, ex: ```m68k-elf-gprof myrom.elf```
