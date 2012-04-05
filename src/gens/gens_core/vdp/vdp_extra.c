@@ -1,6 +1,8 @@
 #include "vdp_io.h"
 #include "vdp_rend.h"
 
+#include "gens/prof/gmon.h"
+
 // Starscream 68000 core.
 #include "gens_core/cpu/68k/star_68k.h"
 
