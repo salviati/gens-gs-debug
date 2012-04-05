@@ -56,11 +56,9 @@ void mcleanup();
 void monstartup(unsigned long lowpc, unsigned long highpc);
 void mcount(unsigned long frompc, unsigned long selfpc);
 
-int monrunning;
 void mcleanup_hook() {
-	if (monrunning) {
+	if (_gmonparam.state == GMON_PROF_ON) {
 		mcleanup();
-		monrunning = 0;
 	}
 }
 
@@ -109,17 +107,14 @@ void VDP_Wrong(unsigned char reg, unsigned short val) {
 					highpc = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]+8) & 0xffff);
 					fprintf(fp, "VDP_Wrong: monstartup(0x%x,0x%x)\n", lowpc, highpc);
 					monstartup(lowpc, highpc);
-					monrunning = 1;
 					break;
 				case 2: //moncontrol
 					control = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]+4) & 0xffff);
 					fprintf(fp, "VDP_Wrong: moncontrol(%d)\n", control);
 					moncontrol(control);
-					monrunning = control;
 					break;
 				case 3: //moncleanup
 					mcleanup();
-					monrunning = 0;
 					break;
 				case 4://gens_print
 					d0 = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]+4) & 0xffff);
