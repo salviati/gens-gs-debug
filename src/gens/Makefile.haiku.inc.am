@@ -1,0 +1,105 @@
+# Haiku-specific Makefile.am
+
+# Haiku UI Header Files
+INCLUDES += -I@srcdir@/ui/haiku/
+
+gens_SOURCES += \
+		emulator/g_main_haiku.cpp \
+		port/ini_old.c \
+		port/timer.c \
+		input/input_haiku_t.c \
+		input/input_haiku.cpp \
+		video/vdraw_haiku_t.c \
+		video/vdraw_haiku.cpp \
+		audio/audio_haiku.c
+
+#if GENS_CDROM
+#if GENS_OS_HAIKU
+#gens_SOURCES += \
+#                segacd/cd_aspi_haiku.cpp
+#endif # GENS_OS_HAIKU
+#endif # GENS_CDROM
+
+# UI sources.
+gens_SOURCES += \
+		ui/haiku/gens_ui_haiku.cpp \
+		ui/haiku/gens/gens_app.cpp \
+		ui/haiku/gens/gens_window.cpp \
+		ui/haiku/gens/gens_window_callbacks.cpp \
+		ui/haiku/gens/gens_window_sync.cpp \
+		ui/haiku/gens/gens_menu.cpp \
+		ui/haiku/controller_config/cc_window.cpp \
+		ui/haiku/bios_misc_files/bmf_window.cpp \
+		ui/haiku/directory_config/dir_window.cpp \
+		ui/haiku/general_options/genopt_window.cpp \
+		ui/haiku/color_adjust/ca_window.cpp \
+		ui/haiku/country_code/ccode_window.cpp \
+		ui/haiku/zip_select/zipsel_dialog.cpp \
+		ui/haiku/plugin_manager/pmgr_window.cpp \
+		ui/haiku/about/about_window.cpp
+
+#if GENS_OPENGL
+#gens_SOURCES += \
+#		video/vdraw_haiku_gl.c \
+#		ui/haiku/opengl_resolution/glres_window.cpp
+#endif # GENS_OPENGL
+
+#if GENS_CDROM
+#gens_SOURCES += \
+#		ui/haiku/select_cdrom/selcd_window.cpp
+#endif # GENS_CDROM
+
+noinst_HEADERS += \
+		emulator/g_main_haiku.hpp \
+		port/ini_old.h \
+		port/timer.h \
+		video/vdraw_haiku_t.h \
+		input/input_haiku.hpp \
+		input/input_haiku_t.h \
+		audio/audio_haiku.h
+
+#if GENS_CDROM
+#noinst_HEADERS += \
+#		segacd/cd_aspi.hpp \
+#		segacd/aspi.h
+#endif
+
+# UI headers.
+noinst_HEADERS += \
+		ui/haiku/gens/gens_window.h \
+		ui/haiku/gens/gens_window_callbacks.hpp \
+		ui/haiku/gens/gens_window_sync.hpp \
+		ui/haiku/gens/gens_menu.hpp \
+		ui/haiku/controller_config/cc_window.h \
+		ui/haiku/bios_misc_files/bmf_window.hpp \
+		ui/haiku/directory_config/dir_window.hpp \
+		ui/haiku/general_options/genopt_window.hpp \
+		ui/haiku/color_adjust/ca_window.h \
+		ui/haiku/country_code/ccode_window.h \
+		ui/haiku/zip_select/zipsel_dialog.h \
+		ui/haiku/plugin_manager/pmgr_window.hpp \
+		ui/haiku/about/about_window.hpp
+
+#if GENS_OPENGL
+#noinst_HEADERS += \
+#		video/vdraw_haiku_gl.h \
+#		video/vdraw_gl.h \
+#		ui/haiku/opengl_resolution/glres_window.hpp
+#endif # GENS_OPENGL
+
+#if GENS_CDROM
+#noinst_HEADERS += \
+#		ui/haiku/select_cdrom/selcd_window.hpp
+#endif # GENS_CDROM
+
+gens_LDADD += -lbe
+
+gens_CFLAGS += \
+		-DGENS_DATADIR=\"@datadir@/@PACKAGE@\" \
+		-DGENS_MDP_DIR=\"@libdir@\" \
+		-DGENS_DOC_DIR=\"@docdir@\"
+
+gens_CXXFLAGS += \
+		-DGENS_DATADIR=\"@datadir@/@PACKAGE@\" \
+		-DGENS_MDP_DIR=\"@libdir@\" \
+		-DGENS_DOC_DIR=\"@docdir@\"

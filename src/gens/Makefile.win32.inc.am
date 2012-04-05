@@ -1,0 +1,84 @@
+# Win32-specific Makefile.am
+
+INCLUDES += -I@srcdir@/ui/win32/
+
+gens_SOURCES += \
+		emulator/g_main_win32.cpp \
+		port/argc_argv.c \
+		video/vdraw_gdi.c \
+		video/vdraw_ddraw_t.c \
+		video/vdraw_ddraw.cpp \
+		input/input_dinput.cpp \
+		input/input_dinput_t.c \
+		input/input_dinput_key_names.c \
+		audio/audio_dsound_t.c \
+		audio/audio_dsound.cpp \
+		plugins/mdp_host_gens_win32.c \
+		util/file/decompressor/popen_wrapper.c \
+		charset/cp1252.cpp \
+		ui/win32/fonts.c \
+		ui/win32/cc6.c \
+		ui/win32/gens_ui_win32.cpp \
+		ui/win32/gens/gens_window.c \
+		ui/win32/gens/gens_window_callbacks.cpp \
+		ui/win32/gens/gens_window_sync.cpp \
+		ui/win32/gens/gens_menu.cpp \
+		ui/win32/controller_config/cc_window.c \
+		ui/win32/bios_misc_files/bmf_window.cpp \
+		ui/win32/directory_config/dir_window.cpp \
+		ui/win32/general_options/genopt_window.cpp \
+		ui/win32/color_adjust/ca_window.c \
+		ui/win32/country_code/ccode_window.c \
+		ui/win32/zip_select/zipsel_dialog.c \
+		ui/win32/plugin_manager/pmgr_window.cpp \
+		ui/win32/about/about_window.cpp \
+		ui/win32/resource.rc
+
+if GENS_CDROM
+gens_SOURCES += \
+                segacd/cd_aspi_win32.cpp \
+		ui/win32/select_cdrom/selcd_window.cpp
+endif
+
+noinst_HEADERS += \
+		emulator/g_main_win32.hpp \
+		port/argc_argv.h \
+		video/vdraw_gdi.h \
+		video/vdraw_ddraw_t.h \
+		video/vdraw_ddraw.hpp \
+		input/input_dinput.hpp \
+		input/input_dinput_t.h \
+		input/input_dinput_key_names.h \
+		input/input_win32_keys.h \
+		audio/audio_dsound_t.h \
+		audio/audio_dsound.hpp \
+		plugins/mdp_host_gens_win32.h \
+		charset/cp1252.hpp \
+		ui/win32/fonts.h \
+		ui/win32/cc6.h \
+		ui/win32/gens/gens_window.h \
+		ui/win32/gens/gens_window_callbacks.hpp \
+		ui/win32/gens/gens_window_sync.hpp \
+		ui/win32/gens/gens_menu.hpp \
+		ui/win32/controller_config/cc_window.h \
+		ui/win32/bios_misc_files/bmf_window.hpp \
+		ui/win32/directory_config/dir_window.hpp \
+		ui/win32/general_options/genopt_window.hpp \
+		ui/win32/color_adjust/ca_window.h \
+		ui/win32/country_code/ccode_window.h \
+		ui/win32/zip_select/zipsel_dialog.h \
+		ui/win32/plugin_manager/pmgr_window.cpp \
+		ui/win32/about/about_window.hpp
+
+if GENS_CDROM
+noinst_HEADERS += \
+                segacd/cd_aspi.hpp \
+		segacd/aspi.h \
+		ui/win32/select_cdrom/selcd_window.hpp
+endif
+
+gens_LDADD += -lgdi32 -lcomctl32 -lcomdlg32 -lole32 -ldxguid -lddraw -ldinput -ldsound
+
+# libgsft Win32 libraries.
+gens_LDADD += $(top_builddir)/src/libgsft/libgsft_win32.la
+gens_DEPENDENCIES += $(top_builddir)/src/libgsft/libgsft_win32.la

@@ -1,0 +1,435 @@
+Gens/GS r7
+
+Copyright (c) 1999-2002 by Stéphane Dallongeville
+Copyright (c) 2003-2004 by Stéphane Akhoun
+Copyright (c) 2008-2009 by David Korth
+
+This version of Gens is maintained by David Korth.
+E-mail: gerbilsoft@verizon.net
+
+For news on Gens/GS, visit Sonic Retro:
+http://www.sonicretro.org
+
+================================================================
+
+What is Gens/GS?
+
+Gens/GS r7 is David Korth's fork of Gens, initially based on
+Gens for Linux v2.15.2. The number after the "r" indicates the
+Gens/GS release. Releases are usually made after a significant new
+feature has been added, with minor releases if a major bug is found.
+
+================================================================
+
+NOTE: The MDP documentation and Gens/GS manual are not finished
+in this version of Gens/GS. They will be completed in a future
+release of Gens/GS.
+
+================================================================
+
+Changes from r7_pre5 to r7:
+
+New Features:
+
+* Added an additional color scaling method, "Full with S/H". This method takes
+  into account the Shadow and Highlight functionality of the Sega Mega Drive's
+  VDP. With this method, MD color 0xEEE (white) is scaled to 0xEEEEEE for normal,
+  0xFFFFFF for highlight, and 0x777777 for shadow. This color scaling method is
+  now the default.
+
+* Initial reimplementation of "Full Screen Minimize". This allows the emulator
+  to minimize itself from Full Screen when a dialog is open, e.g. to load a ROM
+  image. It is currently only usable for a specific case on the Linux version.
+
+* [Linux] Added Alt-Tab support in Full Screen. This uses the "Full Screen
+  Minimize" infrastructure.
+
+--------------------------------
+
+Bug Fixes:
+
+* [Win32] Added a workaround for an ASPI-related crash on Windows 98SE.
+
+* [Win32] Fixed a regression from r7_pre3 that caused Gens/GS to crash if
+  a ROM is loaded via File, Open ROM and a Saitek P580 gamepad is plugged
+  in. Special thanks to NeKit from Sonic Retro for helping to diagnose
+  and solve this problem.
+
+* [Linux] Fixed a regression from r7_pre4 where starting Gens/GS in
+  fullscreen mode with a ROM specified wouldn't work. This bug was
+  reported by Zombie in #retro.
+
+--------------------------------
+
+Miscellaneous:
+
+* [Win32] The custom debug console activated with "--debug" on the release
+  build has been replaced with a standard Win32 console, which is created
+  after initial startup.
+
+* [MDP] Implemented mdp_host_t->emulator_control(MDP_EMUCTRL_RELOAD_INFO).
+
+* Added "Manual" and "Report a Bug" items to the Help menu.
+
+--------------------------------
+
+Low-Level Code Changes:
+
+* [libgsft] Added an implementation of strsep() and removed the strtok_r()
+  implementation. All Gens/GS code that uses strtok_r() has been switched
+  over to strsep().
+
+* [libgsft] Added the BSD implementations of strlcpy() and strlcat().
+  Most Gens/GS code has been switched over to these functions.
+
+* Initial infrastructure for dynamically loading libpng. This will be used
+  to separate libpng on Gens/GS Win32 into a separate DLL. If libpng can't
+  be found, Gens/GS will fall back to saving screenshots in BMP format.
+
+* Eliminated most of the "DECL" macros from the x86 assembler files. This
+  reduces the total symbol count in the resulting binaries.
+
+* Added a new x86 assembler macro, SYM(), which prefixes symbols with the
+  appropriate C symbol prefix for the platform.
+
+================================================================
+
+Changes from r7_pre4 to r7_pre5 [PREVIEW RELEASE]:
+
+New Features:
+
+* The on-screen display text drawing code has received several changes:
+  - The text is now cached using the C64 character set data to reduce
+    the time needed to draw the text on every frame.
+  - The 1x and 2x text drawing functions have been consolidated into one
+    templated function.
+  - UTF-8 strings are now supported. Invalid UTF-8 sequences are treated
+    as local codepage characters.
+  - More characters were added to the C64 character set to take advantage
+    of UTF-8 support.
+
+* The menu bar can now be hidden in windowed mode. To access the menu system
+  in windowed mode while the menu bar is hidden, right-click anywhere in the
+  Gens/GS window.
+
+* Added an RGB Color Scaling option. This option scales colors to their full
+  brightness, which is accurate to how the original console worked. For
+  example, on the MD, a color component 0xE indicates full brightness; however,
+  on Gens/GS in 32-bit color, this would get scaled to 0xE0 (224) instead of
+  0xFF (255). With Color Scaling on, it is now properly scaled to full
+  brightness.
+
+--------------------------------
+
+Bug Fixes:
+
+* [SDL] Fixed a controller input regression that inverted axes. This regression
+  was introduced in r7_pre4 with the reworking of the SDL key configuration
+  handler to make it ignore the initial joystick state when detecting joystick
+  changes. This bug was reported by superGear in #retro.
+
+* Fixed a regression with DMA from SegaCD Word RAM via the cell conversion
+  table. This regression was introduced when I attempted to implement the
+  VDP's 128k (64k-word) wrapping behavior. This regression didn't affect
+  "Sonic CD", but it did affect "Heart of the Alien". Thanks to tetsuo
+  from #retro for helping to diagnose and solve this problem.
+
+* [SDL] Fixed a bug in Controller Configuration where POV hats weren't read
+  properly. This bug was reported by dmb in #retro.
+
+--------------------------------
+
+Miscellaneous:
+
+* A new utility called "CBOB" (C Binary Object Builder) is used to convert the
+  reverse-engineered Sega 32X firmware images into C arrays at compile time.
+  This eliminates the need to have a pre-converted source code file, plus it
+  makes it easier to update the included firmware images (and add more built-in
+  binaries) at a later date.
+
+================================================================
+
+Changes from r7_pre3 to r7_pre4 [PREVIEW RELEASE]:
+
+New Features:
+
+* [Win32] The release build of Gens/GS for Win32 has the standard Win32
+  console disabled. A new Gens/GS-specific debug console has been added for
+  the release build. This console can be enabled by specifying "--debug" on
+  the command line.
+
+--------------------------------
+
+Bug Fixes:
+
+* [Unix] Starting Gens/GS with the "--fs" option or "Full Screen=1" in the
+  configuration file works properly. Previously, the GTK+ UI would be
+  created after SDL was set to fullscreen, which caused SDL to revert to
+  windowed mode, resulting in all sorts of screwiness.
+
+* Blargg's NTSC Filter, MDP Version 1.1.1. This fixes two major bugs:
+  - v1.1.0: Don't read from VRAM for line-doubling, since this is slow on Windows.
+  - v1.1.1: Draw the last scanline correctly when interpolation is enabled.
+
+* [Win32] The "Screenshot" menu item was being checked/unchecked instead
+  of enabled/disabled in the menu synchronization function. This bug was
+  reported by AamirM in #retro.
+
+* [SDL] Controller configuration now checks the current state of the
+  controllers before polling for new keys. This makes it easier to
+  configure controllers that have analog triggers whose default state
+  is negative-axis.
+
+* [SDL] Gens/GS now recognizes diagonals on POV hats properly. This bug
+  was reported (and fixed) by superG on the Ubuntu Forums.
+
+* Fixed the "Crazy" and "Gens Logo" intro effects so they work again.
+  The intro effect is now configurable in the "General Options" window.
+  Note that the "Gens Logo" effect may have problems on Win32 if the
+  desktop color depth doesn't match the rendering color depth.
+
+* The "Directory Configuration" window now correctly shows the directory
+  names in the "Select Directory" window title. This regressed when the
+  "Directory Configuration" window was ported back to C in r7_pre1.
+
+* [Win32] If the "Normal" renderer can't be initialized in Full Screen in
+  the DirectDraw renderer, try the "Double" renderer instead. Some newer
+  Windows video drivers don't support double-scanning 320x240, so 640x480
+  must be used instead.
+
+* [Win32] Fixed a massive lag regression from the "back-to-c" branch.
+  The DirectSound audio backend was sleeping for 1 ms while waiting for
+  the write pointer to change, which caused issues with the Windows
+  scheduler on some systems. Thanks to djohe from #retro for helping to
+  diagnose and solve this problem.
+
+* [Win32] Removed a call to ChangeDesktopSettings() on exit. Notably,
+  this fixes a bug in Wine where Gens would disable the second monitor
+  on exit. It probably also fixes some flicker issues on Vista when
+  the program exited.
+
+* SRAM functionality was accidentally broken in Release 7, Preview 2.
+  I overhauled the ROM header parser but forgot to byteswap various values,
+  including the SRAM addresses. SRAM works now.
+
+--------------------------------
+
+Miscellaneous:
+
+* automake-1.10 is now required to build Gens/GS.
+
+* The "Double" renderer is now default for both Full Screen and Windowed modes.
+
+* Stretch mode now defaults to "Horizontal Only".
+
+* [Win32] Window reinitialization has been improved when switching to/from
+  Full Screen. The reinitialization code from the DirectDraw 4 and GDI
+  renderers has been merged into a single function.
+
+* [Win32] The Release build now has an option for a debug console. To enable
+  the debug console, specify the "--debug" parameter on the command line.
+
+* Incompatible MDP plugins are now displayed in a third tab in the Plugin Manager
+  window. The description field displays the MDP error code.
+
+* [Ubuntu] The Ubuntu package no longer includes static libraries and libtool
+  files (.a and .la, respectively) for MDP plugins, since they're useless.
+  External MDP plugins can't be linked at compile-time.
+
+================================================================
+
+Changes from r7_pre2 to r7_pre3 [PREVIEW RELEASE]:
+
+New Features:
+
+* [Unix] If a game has a Shift-JIS encoded title in the Japanese title field
+  and the country code is set to Japan, the title will be converted to the
+  system's native locale, e.g. UTF-8. (Win32 support for this feature will
+  be added once Gens/GS fully supports Windows' Unicode implementation.)
+
+* [Unix] On systems that support sigaction(), the signal handler dialog will
+  now show extended signal information for some signals, e.g. SIGFPE.
+
+--------------------------------
+
+Bug Fixes:
+
+* Several buffer overflow bugs that caused crashes in the release build
+  on some Linux platforms have been fixed. This includes a long-standing
+  bug in the SegaCD code, plus a new bug in the partially-rewritten
+  savestate loading code.
+
+================================================================
+
+Changes from r7_pre1 to r7_pre2 [PREVIEW RELEASE]:
+
+New Features:
+
+* A new command line option, "--boot-cd", can be specified to tell Gens/GS to
+  boot from an actual SegaCD CD-ROM on startup.
+
+* Gens/GS no longer changes non-alphanumeric characters in SegaCD game names
+  to spaces. This may cause some games to have different names, which will
+  prevent their BRAM files from being loaded properly. If you have any of
+  these games, you will need to rename the BRAM files in order to get them
+  to load correctly.
+
+--------------------------------
+
+Miscellaneous:
+
+* MDP v1.0.0 has been marked as "stable", and will not have any further
+  API/ABI-breaking changes.
+
+================================================================
+
+Changes from Milestone 6 to r7_pre1 [LIMITED PREVIEW RELEASE]:
+
+New Features:
+
+* Mega Drive Plugins v1.0.0. This major update to the plugins system
+  adds support for external plugins (.dll on Windows, .so on Linux),
+  as well as support for more than just rendering plugins.
+
+* doc/mdp/ contains the MDP Interface Specifiction Version 1.0.0.
+  This document is licensed under the GNU Free Documentation License v1.3.
+
+* A new manual for Gens/GS has been created. It is available in doc/manual/.
+
+* The Game Genie functionality has been moved to an MDP plugin. It now supports
+  8-bit, 16-bit, and 32-bit patch codes, and uses a new patch code file format.
+  Old patch code files are supported for loading; however, they will be written
+  in the new format when saved. Later versions will add support for patching
+  CPU address spaces other than the main MC68000.
+
+* New MDP Plugin: VDP Layer Options. This lets you adjust the visible layers
+  on screen, so e.g. you can hide sprites, swap scroll priorities, and lock
+  the palette to prevent color changes.
+
+* New MDP Plugin: Sonic Gens. This lets you view various information in
+  memory in several Sonic games. Sonic Gens was originally written by LOst as a
+  standalone version of Gens.
+
+* New renderers:
+  - EPX (ported from Gens Rerecording)
+  - EPX Plus (ported from Gens Rerecording)
+  - Super 2xSaI (ported from Gens Plus)
+  - Super Eagle (ported from Gens Plus)
+  - Blargg's NTSC filter for MD
+
+* [Win32] Ported the GDI video backend from Gens Plus. It still has
+  a few bugs, but it mostly works.
+
+* Extended controller configuration format. The new configuration format
+  allows for up to 128 axes, 256 buttons, and 64 POV hats, whereas the
+  old configuration format only allowed for 6 axes [5 axes on Win32],
+  112 buttons, and 4 POV hats. This mainly affects the Linux version, since
+  Linux usually reports all axes as axes instead of mapping some axes to
+  POV hats, and some newer controllers (e.g. the Xbox 360 controller) have
+  more than 6 axes. Older configurations are automatically updated to use
+  the new controller configuration format.
+
+* The reverse-engineered 32X firmware, written by DevSter, is now included
+  in Gens/GS. If you do not have the original Sega 32X firmware files, the
+  reverse-engineered ones are used instead.
+
+* Added SH2 DMA support for PWM audio. Thanks to Joseph Fenton for
+  submitting a patch.
+
+* [Win32] Joysticks connected after loading Gens/GS will now be detected
+  in the Controller Configuration dialog.
+
+* WAV dumping has been reimplemented.
+
+* ROM History now caches the ROM type (MD/MCD/32X), so it doesn't have to check
+  the ROM type every time the ROM History menu is rebuilt. This improves
+  performance significantly if some ROM images were loaded from network shares.
+
+* ROM History now keeps track of compressed files inside of multi-file
+  archives. For example, if you have a 7z archive containing several different
+  versions of a game, selecting version 1 will result in a ROM History entry
+  for that specific version, and selecting version 2 will result in another
+  ROM History entry.
+
+* Added initial support for the "Palette Select" bit in VDP register 0.
+  If the "Palette Select" bit is cleared, only the LSBs of each color component
+  in CRAM is used to determine the colors to display, resulting in a maximum of
+  8 colors onscreen. This isn't very useful, but it's more accurate.
+
+* SRAM can now be disabled in the Options menu. This fixes Puggsy, which checks
+  for the existance of SRAM and prevents the user from advancing past a certain
+  point if it exists. (Puggsy uses a password system, not SRAM.)
+
+* [Unix] Improved VSync support with the OpenGL backend. Both the MESA and SGI
+  swap control methods are now supported.
+
+* The video subsystem now supports fallbacks. For example, on the Linux
+  version, if SDL+OpenGL is selected but OpenGL isn't available, it will
+  simply revert back to SDL instead of crashing. As an added bonus, this
+  allows for Gens/GS to start up properly on Windows NT 4.0, since the
+  default backend on Win32 is DirectDraw 4, but NT4 doesn't support it.
+  Instead of crashing, it will fall back to the GDI backend.
+
+--------------------------------
+
+Bug Fixes:
+
+* Dragging and dropping a ROM image onto the Gens/GS window will now
+  synchronize the menus. This bug was reported by Tets on the Sonic
+  Retro forums.
+
+* Loading a GSX savestate file that is not in GSX format will now show
+  an error instead of crashing. Apparently, Gens Plus GZips its savestate
+  files when saving by default. This bug was reported by SoNick in #retro.
+
+* [GTK+] Copied g_uri_unescape_string() (and dependent functions) from
+  GLib 2.18.4 into Gens/GS. This function was introduced in GLib 2.16,
+  but Gens/GS should be compatible with versions of GLib 2.4 and later.
+
+* Two VDP DMA bugs have been fixed:
+  - Zero-length DMA operations are now handled as 65,536-word operations.
+    This may break some badly-written hacks.
+  - DMA operations now wrap on a 128k boundary. This bug was reported by TmEE.
+
+* The VDP H_Int register is now initialized to 0xFF. This fixes Sik's test ROM
+  that produced "rain" on Gens, but not on Regen or the actual hardware.
+
+--------------------------------
+
+Low-Level Code Changes:
+
+* The video, audio, and input subsystems have been ported back to C.
+  The C++ system was too awkward and had too much overhead.
+
+* Similarly, the decompression subsystem has been ported back to C.
+  In addition, the LZMA SDK is now built into Gens/GS, so 7z archives
+  can be read without an external 7z binary.
+
+* Initial port of the Z80 emulator to C. The Z80 emulator has been moved
+  out of the src/gens directory and into its own directory, src/mdZ80.
+  Currently, the only functions that have been ported to C are the helper
+  functions. The actual emulation code is currently being worked on in the
+  mdZ80 branch in the Gens/GS git repository.
+
+* Many x86 assembly language files have been converted from Intel-style (nasm)
+  assembly to AT&T-style (GNU `as`) assembly.
+
+* Many assembler functions have been ported to C/C++, including the
+  UPDATE_PALETTE macros and Reset_VDP() (now VDP_Reset()).
+
+* Multitap support has been ported from x86 assembler to C. In the process,
+  both Sega Teamplayer and 4-Way Play support have been improved. Notably,
+  Teamplayer now works on "NBA Jam" and "NBA Jam TE", and 4-Way Play now
+  works (sometimes) on "Triple Play '96". A complete list of tested multitap
+  games can be found in doc/teamplayer.txt .
+
+* yasm is now supported as an alternative to nasm. To use yasm, add the option
+  --with-nasm=yasm when using the ./configure script.
+
+* Precompiled binaries are now compiled for i686 or higher. If you want to
+  run Gens/GS on an original Intel Pentium or older, you will have to
+  compile your own Gens/GS binary.
+
+================================================================
+
+For information about previous releases, see the ChangeLog.txt file.

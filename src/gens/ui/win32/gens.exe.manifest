@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+	<assemblyIdentity
+		type="win32"
+		name="Gens.GS"
+		version="2.16.7.0"
+		processorArchitecture="x86"
+	/>
+	
+	<description>Gens/GS r7</description>
+	
+	<!-- Common Controls 6. Needed for visual styles on XP and later. -->
+	<dependency>
+		<dependentAssembly>
+			<assemblyIdentity
+				type="win32"
+				name="Microsoft.Windows.Common-Controls"
+				version="6.0.0.0"
+				processorArchitecture="x86"
+				publicKeyToken="6595b64144ccf1df"
+				language="*"
+			/>
+		</dependentAssembly>
+	</dependency>
+	
+	<!-- Application security requirements. Used for Vista UAC. -->
+	<trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+		<security>
+			<requestedPrivileges>
+				<requestedExecutionLevel
+					level="asInvoker"
+					uiAccess="false"
+				/>
+			</requestedPrivileges>
+		</security>
+	</trustInfo>
+</assembly>  

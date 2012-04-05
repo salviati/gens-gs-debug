@@ -1,0 +1,126 @@
+Gens/GS TODO List
+
+Release 7:
+
+- Decrease PWM volume. Chilly Willy's PWM scaling patch made it too loud.
+- [Win32] Add a configuration option to disable ASPI support. (Win9x has issues occasionally.)
+- Finish the Gens/GS manual.
+- Implement GensUI::fsMinimize() support for dialogs. (Also, Win32 support.)
+
+MDP TODO for Gens/GS r7:
+- Finish MDP documentation.
+- Verify mdp_host_t "No (Not NULL)" and "No (NULL)" support in emulator and plugins.
+- Finish an initial test suite for MDP rendering plugins.
+
+Release 7.1:
+
+- Don't show "Zip File Selection Dialog" if:
+  - A ROM is opened in Full Screen.
+- cc_window.c: Add checkboxes to the "Input Devices" listbox for filtering.
+- Verify error handling in plugins.
+- [Win32] Disable the "Apply" button on the "General Options" window if nothing has been changed.
+- [GTK+] Consider setting the event box's background color to match the border color.
+- Investigate Gens Rerecording commits r250, r252.
+- Implement fullscreen and render selection fallbacks.
+  - Notably, DirectDraw doesn't like it when selecting 960x720 or 1280x960 on some systems.
+- [GDI] FPS counter is 2x what it should be.
+
+- Convert the SH2 memory functions to read/write memory in 16-bit byteswapped format, similar to 68K.
+  - This will allow use of the MD ROM buffer for SH2 functions, and save 4MB of memory.
+- Extend MD ROM buffer to 8 MB. (8 MB in MD mode only; 32X limited to 4 MB.)
+- mdZ80 using function pointer tables and pagetables for memory access.
+- Change GensUI to C-style linkage instead of a class.
+- DirectDraw 7 VDraw backend.
+  - Hardware color conversion. (Always render in 15/16-bit color.)
+  - Get border color drawing working in fullscreen when in 2x or higher.
+- Initial VDP debugging plugin.
+- "Cheat Finder" plugin.
+- Use Flag_Clr_Scr consistently. (Maybe rename it?)
+- Z80 RESET should force YM2612 to hold RESET. (i.e. don't accept writes when Z80 is in RESET)
+- Allow selecting renderers on the command line. (regression from m6)
+  - Set a variable in Gens_StartupInfo_t?
+- [Win32] Trim pathnames for all files and directories located in the Gens directory.
+- [Win32] hq3x: Broken in some cases. (Check width division!)
+- Reports of slowdown on fglrx 9.10/8.660 (Ubuntu 9.10 beta) with an rv710 (RadeonHD 4350) [dmb in @retro]
+  - Check with Ubuntu 8.04 and fglrx on rv530 (FireGL V5200)
+
+TODO for later:
+- [Win32] Improve DirectDraw border color drawing, especially when the window
+  is a different aspect ratio than 4:3.
+- Re-add v5 32X savestate load support.
+  - Rewrite all GSX savestate functions to use structs.
+- Implement proper TMSS support using the !CartCE register ($A14101, bit 0)
+- Force a wakeup after an SDL hotkey is activated. (input_sdl_events.cpp)
+- Reimplement "MINIMIZE" for fullscreen.
+- Allow disabling SegaCD and 32X in build to make it easier to port to other platforms.
+- Allow disabling all emulation code to test the UI on other platforms.
+- Update v_effects.cpp::T_veffect_pause_tint() for RGB Color Scaling.
+
+MDP TODO for later:
+- Add "Exclusive Mode" so a plugin can gain exclusive control.
+  - Disables reset, close ROM, etc.
+- Game Genie: Add support for S68K, Z80, MSH2, and SSH2.
+- Add "Input Remapping", needed for movie plugins and netplay.
+- GL shader renderer infrastructure in MDP. (OpenEmu has an ARB shader-based hq4x renderer.)
+
+Big Features TODO:
+- libcdio
+- ZOMG
+- Reimplement the language system.
+- Fix the interpolated_scanline 16-bit color asm (non-mmx) renderer.
+
+High-Level TODO:
+- Move most global variables to global Settings struct
+- Port all Gens Rerecording changes
+- Add Qt4 UI
+- [MDP] Add VGM dumping support
+- Add more compression format support
+- Improve the Zip File Selection Dialog
+- SSG-EG: http://www.spritesmind.net/_GenDev/forum/viewtopic.php?p=5716#5716
+- (possibly?) Use Carbon/Cocoa for menus on MacOS.
+- Add a simple OSD menu for Gens/GS SDL in fullscreen.
+  - Maybe later, add a full OSD UI. (Will need to implement runtime UI switching in Gens/GS and MDP.)
+
+Low Priority:
+- Add MacOS X Aqua UI
+- Automatic 32X mode switching when a 32X register is written to.
+  This is how Kega enables 32X mode.
+
+High-Level TODO:
+- Rework border color emulation to be in the MD renderer, not the blitter.
+- Reimplement OpenGL projection so it doesn't stretch on widescreen monitors.
+  (Make it an option?)
+- [Win32] Add OpenGL renderer.
+- Combine common portions of the GTK+ and Win32 UIs.
+- Combine the two versions of Starscream. (It'll still output two asms, though.)
+- [Linux] Add a No GUI mode that runs in a plain SDL window.
+- [Linux] Add a configure option to disable the GTK+ interface.
+- Port MP3 support to LAME or some other MP3 library.
+- Automatically format SegaCD RAM cartridges.
+- [SDL] Figure out the minimum SDL version.
+- [GTK+] game_genie: If Enter is pressed in a textbox, select "Add Code", not "OK".
+- Pausing using Esc while in interlaced mode (Sonic 2 2P) causes the bottom
+  half of the screen to screw up.
+- [Win32] Windowed VSync might be broken.
+- [Win32] Full Screen: Frame counter flickers.
+- [Win32] Frameskip doesn't work correctly. (It completely disregards timing.)
+- [ASPI] Only initialize when "Boot CD" is selected. (Also, close when SegaCD is closed.)
+- Check if mingw32 forces 8-byte alignment for doubles. (ym2612 struct)
+- J-Cart: http://spritesmind.net/_GenDev/forum/viewtopic.php?start=15&t=177
+- [Linux] Mono sound is broken.
+
+Low-Level TODO:
+- Fix Illegal Address bug. Gens doesn't crash, but Kega and the actual
+  MD do. (Possible: Make an option to crash on illegal address.)
+- CD audio fixes in Gens Rerecording r65, r66, etc.
+  - http://code.google.com/p/gens-rerecording/source/detail?r=65
+- [MDP] Overclocking! Add an option to overclock the emulated CPUs so Sonic 2 2P doesn't lag.
+- Proper support for 448 lines in interlaced mode. (Sonic 2 2P)
+- Z80 initialization bug: http://forums.sonicretro.org/index.php?showtopic=11192
+- [32X] PWM regressions from the C port, started in m5.1. PWM is broken in
+  BC Racer, but BC Racer doesn't work anyway.
+
+Miscellaneous:
+- Commit fe2426a72420177fd3e7e4c086a673ec7273a97c fixed performance problems in VMware.
+  This commit allows processing messages in GensUI::sleep(), which technically *shouldn't*
+  fix the problem in VMware since GensUI::sleep() isn't called when a game is running.
