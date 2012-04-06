@@ -3,6 +3,8 @@
 
 #include "gens/prof/gmon.h"
 
+#include "gens_core/mem/mem_m68k.h"
+
 // Starscream 68000 core.
 #include "gens_core/cpu/68k/star_68k.h"
 
@@ -10,48 +12,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
-
-
-// Duplicated from mdp_host_gens_mem.c
-/* Byteswapping macros. */
-#include "libgsft/gsft_byteswap.h"
-
-#if GSFT_BYTEORDER == GSFT_LIL_ENDIAN
-
-/* Little-endian memory macros. */
-#define MEM_RW_8_BE(ptr, address)	(((uint8_t*)(ptr))[(address) ^ 1])
-#define MEM_RW_8_LE(ptr, address)	(((uint8_t*)(ptr))[(address)])
-
-#else
-
-/* Big-endian memory macros. */
-#define MEM_RW_8_BE(ptr, address)	(((uint8_t*)(ptr))[(address)])
-#define MEM_RW_8_LE(ptr, address)	(((uint8_t*)(ptr))[(address) ^ 1])
-
-#endif
-
-/* Endian-neutral memory macros. */
-#define MEM_RW_16(ptr, address)		(((uint16_t*)(ptr))[(address) >> 1])
-
-/* TODO: Optimize 32-bit reads/writes for their respective architectures. */
-
-#define MEM_READ_32_BE(ptr, address)	\
-	(((((uint16_t*)(ptr))[(address) >> 1]) << 16) | (((uint16_t*)(ptr))[((address) >> 1) + 1]))
-
-#define MEM_READ_32_LE(ptr, address)	\
-	(((((uint16_t*)(ptr))[((address) >> 1) + 1]) << 16) | (((uint16_t*)(ptr))[(address) >> 1]))
-
-#define MEM_WRITE_32_BE(ptr, address, data)					\
-do {										\
-	((uint16_t*)(ptr))[(address) >> 1]       = (((data) >> 16) & 0xFFFF);	\
-	((uint16_t*)(ptr))[((address) >> 1) + 1] = ((data) & 0xFFFF);		\
-} while (0)
-
-#define MEM_WRITE_32_LE(ptr, address, data)					\
-do {										\
-	((uint16_t*)(ptr))[((address) >> 1) + 1] = (((data) >> 16) & 0xFFFF);	\
-	((uint16_t*)(ptr))[(address) >> 1]       = ((data) & 0xFFFF);		\
-} while (0)
+#include <string.h>
 
 void moncontrol(int);
 void mcleanup();
@@ -64,6 +25,14 @@ void mcleanup_hook() {
 	}
 }
 
+
+static inline unsigned int _M68K_RL(unsigned int addr) {
+	unsigned int val = M68K_RW(addr);
+	val <<= 16;
+	val |= M68K_RW(addr + 2);
+	return val;
+}
+
 void VDP_Wrong(unsigned char reg, unsigned short val) {
 	static FILE *fp;
 	static int timer;
@@ -73,9 +42,7 @@ void VDP_Wrong(unsigned char reg, unsigned short val) {
 	unsigned long lowpc, highpc;
 	int control;
 
-	int d0;
-	unsigned char *ptr;
-	int i;
+	int straddr;
 	
 	static int added_mcleanup_hook;
 	
@@ -96,22 +63,21 @@ void VDP_Wrong(unsigned char reg, unsigned short val) {
 	switch (reg) {
 		case 0x1c: // stuff provided by doc/prof/gens.s
 			switch (val) {
-				// FIXME: params are better read from stack, rather than regs. compatible with 68k calling conv and simplifies gens.s.
 				case 0: // mcount
-					callee = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]) & 0xffff); //selfpc
-					caller = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[6]+4) & 0xffff); // frompc
+					callee = _M68K_RL(main68k_context.areg[7]); //selfpc
+					caller = _M68K_RL(main68k_context.areg[6]+4); // frompc
 					fprintf(fp, "VDP_Wrong: mcount(0x%x,0x%x)\n", caller, callee);
 					mcount(caller, callee);
 					
 					break;
 				case 1://monstartup
-					lowpc = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]+4) & 0xffff);
-					highpc = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]+8) & 0xffff);
+					lowpc = _M68K_RL(main68k_context.areg[7]+4);
+					highpc = _M68K_RL(main68k_context.areg[7]+8);
 					fprintf(fp, "VDP_Wrong: monstartup(0x%x,0x%x)\n", lowpc, highpc);
 					monstartup(lowpc, highpc);
 					break;
 				case 2: //moncontrol
-					control = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]+4) & 0xffff);
+					control = _M68K_RL(main68k_context.areg[7]+4);
 					fprintf(fp, "VDP_Wrong: moncontrol(%d)\n", control);
 					moncontrol(control);
 					break;
@@ -119,20 +85,8 @@ void VDP_Wrong(unsigned char reg, unsigned short val) {
 					mcleanup();
 					break;
 				case 4://gens_print
-					d0 = MEM_READ_32_BE(Ram_68k,(main68k_context.areg[7]+4) & 0xffff);
-
-					if (d0 >= 0xe00000 && d0 <= 0xffffff) {
-						ptr = &Ram_68k[d0 & 0xffff];
-					} else if (d0 >= 0 && d0 <= 0x3fffff) {
-						ptr = &Rom_Data[d0];
-					} else {
-						fprintf(fp, "VDP_Wrong: illegal address: 0x%x\n", d0);
-						return;
-					}
-					
-
-					for(i=0; ;i++) {
-						if((c = (int)MEM_RW_8_BE(ptr, i)) == 0) break;
+					for(straddr = _M68K_RL(main68k_context.areg[7]+4); ;straddr++) {
+						if((c = (int)M68K_RB(straddr)) == 0) break;
 						fputc((int)c, fp);
 					}
 					fflush(fp);
