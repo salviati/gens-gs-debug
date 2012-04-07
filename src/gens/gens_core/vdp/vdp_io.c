@@ -93,6 +93,7 @@ int Genesis_Started = 0;
 int SegaCD_Started = 0;
 int _32X_Started = 0;
 
+unsigned char H_Counter_Zero, V_Counter_Zero;
 
 /**
  * VDP_Reset(): Reset the VDP.
@@ -166,12 +167,16 @@ void VDP_Reset(void)
 	// Initialize the Horizontal Counter table.
 	unsigned int hc;
 	unsigned int hc_val;
+
+	H_Counter_Zero = (unsigned char)rand();
+	V_Counter_Zero = (unsigned char)rand();
+
 	for (hc = 0; hc < 512; hc++)
 	{
-		hc_val = ((hc * 170) / 488) - 0x18;
+		hc_val = ((hc * 170) / 488) - 0x18 ;
 		H_Counter_Table[hc][0] = (unsigned char)hc_val;
 		
-		hc_val = ((hc * 205) / 488) - 0x1C;
+		hc_val = ((hc * 205) / 488) - 0x1C ;
 		H_Counter_Table[hc][1] = (unsigned char)hc_val;
 	}
 	

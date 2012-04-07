@@ -64,6 +64,8 @@ section .bss align=64
 	extern SYM(Ram_Word_2M)
 	extern SYM(Ram_Word_1M)
 	extern SYM(Bank_M68K)
+	extern SYM(H_Counter_Zero)
+	extern SYM(V_Counter_Zero)
 
 	global SYM(VRam)
 	SYM(VRam):
@@ -519,6 +521,7 @@ section .text align=64
 		setnz	bl
 		mov	al, [SYM(H_Counter_Table) + eax * 2 + ebx]
 		xor	ah, ah
+		add	al, byte [SYM(H_Counter_Zero)]
 		
 		pop ebx
 		ret
@@ -589,6 +592,7 @@ section .text align=64
 	.No_Interlace:
 		xor	ah, ah
 		pop	ebx
+		add	al, byte [SYM(V_Counter_Zero)]
 		ret
 	
 	align 16
