@@ -173,10 +173,10 @@ void VDP_Reset(void)
 
 	for (hc = 0; hc < 512; hc++)
 	{
-		hc_val = ((hc * 170) / 488) - 0x18 ;
+		hc_val = ((hc * 170) / 488) - 0x18;
 		H_Counter_Table[hc][0] = (unsigned char)hc_val;
 		
-		hc_val = ((hc * 205) / 488) - 0x1C ;
+		hc_val = ((hc * 205) / 488) - 0x1C;
 		H_Counter_Table[hc][1] = (unsigned char)hc_val;
 	}
 	
