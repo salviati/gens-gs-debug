@@ -250,7 +250,7 @@ static void vdraw_sdl_draw_border(void)
 {
 	// TODO: Consolidate this function by using a macro.
 	
-	SDL_Rect border;
+	SDL_Rect border = {0,0,0,0};
 	
 	if (!Video.borderColorEmulation)
 	{

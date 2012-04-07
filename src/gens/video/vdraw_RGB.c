@@ -30,6 +30,7 @@
 
 // C includes.
 #include <stdlib.h>
+#include <stdio.h>
 
 
 /**
@@ -98,6 +99,8 @@ void vdraw_rgb_convert(mdp_render_info_t *rInfo)
 		{
 			// Other. No lookup table required.
 			RGB_LUT = NULL;
+			perror("vdraw_rgb_convert: This function only works for 15/16-bit to 32-bit.");
+			exit(0);
 		}
 		
 		// Save the MD bpp.
